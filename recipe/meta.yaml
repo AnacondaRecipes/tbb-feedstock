@@ -1,4 +1,5 @@
-{% set version = "2018_20171205" %}
+# versioning set this way to be consistent with other intel packages (including their tbb)
+{% set version = "2018.0.2" %}
 
 package:
   name: tbb
@@ -8,24 +9,22 @@ source:
   fn: tbb{{ version }}oss_src.tgz
   url: https://github.com/01org/tbb/archive/2018_U2.tar.gz
   sha256: 78bb9bae474736d213342f01fe1a6d00c6939d5c75b367e2e43e7bf29a6d8eca
+  patches:
+    - 0001-respect-gcc-env-vars.patch
+    - 0002-release-build-only.patch
 
 build:
   number: 0
-  features:
-    - vc9  # [win and py27]
-    - vc14  # [win and py>=35]
-  skip: true  # [win and py36]
 
 requirements:
   build:
-    - toolchain
-    - python  # [win]
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
     - cmake  # [win]
 
 test:
   requires:
-    - python {{ os.environ.get('PY_VER', '') + '*' }}  # [win]
-
+    - python
   commands:
     - test -f ${PREFIX}/include/tbb/tbb.h  # [unix]
     - python -c "import ctypes; ctypes.cdll[r'${PREFIX}/lib/libtbb${SHLIB_EXT}']"  # [unix]
@@ -42,3 +41,4 @@ about:
 extra:
   recipe-maintainers:
     - jschueller
+    - msarahan

@@ -1,4 +1,10 @@
 #!/bin/sh
+SHORT_OS_NAME="$(uname -s)"
+if [ "${SHORT_OS_NAME:0:5}" == "Linux" ]; then
+    # Compile with C++11 not C++17 standard - C++17 has error: ISO C++1z does not allow dynamic exception specifications
+    export CPPFLAGS="${CPPFLAGS//-std=c++17/-std=c++11}"
+    export CXXFLAGS="${CXXFLAGS//-std=c++17/-std=c++11}"
+fi
 
 make -j${CPU_COUNT}
 
@@ -22,5 +28,5 @@ install -d ${PREFIX}/include
 cp -r ./include/tbb ${PREFIX}/include
 
 # simple test instead of "make test" to avoid timeout
-${CXX} ${RECIPE_DIR}/tbb_example.c -I${PREFIX}/include -L${PREFIX}/lib -ltbb -o tbb_example
-DYLD_LIBRARY_PATH=${PREFIX}/lib ./tbb_example
+${CXX} ${RECIPE_DIR}/tbb_example.c -I${PREFIX}/include -L${PREFIX}/lib -ltbb -o tbb_example -Wl,-rpath,$PREFIX/lib
+./tbb_example
