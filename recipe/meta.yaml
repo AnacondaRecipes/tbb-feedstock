@@ -24,6 +24,8 @@ requirements:
 
 test:
   requires:
+    # exact version doesn't matter.  Just need some version.  CB should be smart enough to not loop,
+    #    but right now that's not true
     - python
   commands:
     - test -f ${PREFIX}/include/tbb/tbb.h  # [unix]

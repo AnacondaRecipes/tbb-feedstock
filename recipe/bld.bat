@@ -9,7 +9,7 @@ mkdir buildw && cd buildw
 
 set CMAKE_CONFIG="Release"
 
-cmake -LAH -G"NMake Makefiles"                             ^
+cmake -LAH -G"%CMAKE_GENERATOR%"                             ^
   -DCMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%"                ^
   -DCMAKE_BUILD_TYPE="%CMAKE_CONFIG%"                      ^
   -DTBB_CI_BUILD=ON                                        ^
