@@ -21,6 +21,7 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - cmake  # [win]
+    - make   # [unix]
 
 test:
   requires:
