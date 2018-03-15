@@ -88,6 +88,7 @@ outputs:
         - m2w64-make                                     # [win]
         - make                                           # [unix]
         - swig
+        - make                                           # [unix]
       host:
         - python
         - {{ pin_subpackage('tbb-devel', exact=True) }}
