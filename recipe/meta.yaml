@@ -31,6 +31,7 @@ requirements:
     - python *
     - {{ compiler('cxx') }}
     - m2w64-make                                         # [win]
+    - make                                               # [unix]
 
 test:
   requires:
@@ -53,6 +54,7 @@ outputs:
         - python *
         - {{ compiler('cxx') }}
         - m2w64-make                                     # [win]
+        - make                                           # [unix]
       run:
         - {{ pin_subpackage('tbb', exact=True) }}        # development package is for specific version of tbb
     test:
@@ -70,6 +72,7 @@ outputs:
       build:
         - {{ compiler('cxx') }}
         - m2w64-make                                     # [win]
+        - make                                           # [unix]
         - swig
       host:
         - python
