@@ -1,0 +1,65 @@
+From aff39523728d00143b9bfc72308662e2f6f28b89 Mon Sep 17 00:00:00 2001
+From: Michael Sarahan <msarahan@gmail.com>
+Date: Wed, 7 Mar 2018 16:04:00 -0600
+Subject: [PATCH 2/3] release build only
+
+---
+ Makefile | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 22486be..846a929 100644
+--- a/Makefile
++++ b/Makefile
+@@ -26,28 +26,22 @@ include $(tbb_root)/build/common.inc
+ 
+ default: tbb tbbmalloc $(if $(use_proxy),tbbproxy)
+ 
+-all: tbb tbbmalloc tbbproxy test examples
++all: tbb tbbmalloc tbbproxy test
+ 
+ tbb: mkdir
+-	$(MAKE) -C "$(work_dir)_debug"  -r -f $(tbb_root)/build/Makefile.tbb cfg=debug
+ 	$(MAKE) -C "$(work_dir)_release"  -r -f $(tbb_root)/build/Makefile.tbb cfg=release
+ 
+ tbbmalloc: mkdir
+-	$(MAKE) -C "$(work_dir)_debug"  -r -f $(tbb_root)/build/Makefile.tbbmalloc cfg=debug malloc
+ 	$(MAKE) -C "$(work_dir)_release"  -r -f $(tbb_root)/build/Makefile.tbbmalloc cfg=release malloc
+ 
+ tbbproxy: mkdir
+-	$(MAKE) -C "$(work_dir)_debug"  -r -f $(tbb_root)/build/Makefile.tbbproxy cfg=debug tbbproxy
+ 	$(MAKE) -C "$(work_dir)_release"  -r -f $(tbb_root)/build/Makefile.tbbproxy cfg=release tbbproxy
+ 
+ test: tbb tbbmalloc $(if $(use_proxy),tbbproxy)
+-	-$(MAKE) -C "$(work_dir)_debug"  -r -f $(tbb_root)/build/Makefile.tbbmalloc cfg=debug malloc_test
+-	-$(MAKE) -C "$(work_dir)_debug"  -r -f $(tbb_root)/build/Makefile.test cfg=debug
+ 	-$(MAKE) -C "$(work_dir)_release"  -r -f $(tbb_root)/build/Makefile.tbbmalloc cfg=release malloc_test
+ 	-$(MAKE) -C "$(work_dir)_release"  -r -f $(tbb_root)/build/Makefile.test cfg=release
+ 
+ rml: mkdir
+-	$(MAKE) -C "$(work_dir)_debug"  -r -f $(tbb_root)/build/Makefile.rml cfg=debug
+ 	$(MAKE) -C "$(work_dir)_release"  -r -f $(tbb_root)/build/Makefile.rml cfg=release
+ 
+ examples: tbb tbbmalloc
+@@ -61,8 +55,6 @@ python: tbb
+ clean: clean_examples
+ 	$(shell $(RM) $(work_dir)_release$(SLASH)*.* >$(NUL) 2>$(NUL))
+ 	$(shell $(RD) $(work_dir)_release >$(NUL) 2>$(NUL))
+-	$(shell $(RM) $(work_dir)_debug$(SLASH)*.* >$(NUL) 2>$(NUL))
+-	$(shell $(RD) $(work_dir)_debug >$(NUL) 2>$(NUL))
+ 	@echo clean done
+ 
+ clean_examples:
+@@ -70,8 +62,7 @@ clean_examples:
+ 
+ mkdir:
+ 	$(shell $(MD) "$(work_dir)_release" >$(NUL) 2>$(NUL))
+-	$(shell $(MD) "$(work_dir)_debug" >$(NUL) 2>$(NUL))
+-	@echo Created $(work_dir)_release and ..._debug directories
++	@echo Created $(work_dir)_release directories
+ 
+ info:
+ 	@echo OS: $(tbb_os)
+-- 
+2.17.0
+

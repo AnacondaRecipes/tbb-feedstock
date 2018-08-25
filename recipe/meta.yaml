@@ -24,6 +24,10 @@ source:
   fn: tbb{{ vtag }}_oss_src.tgz
   url: https://github.com/01org/tbb/archive/{{ vtag }}.tar.gz
   sha256: c4c2896af527392496c5e01ef8579058a71b6eebbd695924cd138841c13f07be
+  patches:
+    - 0001-Discard-redefinition-of-aligned_alloc.patch
+    - 0002-release-build-only.patch
+    - 0003-Use-CC-instead-of-hardcoded-gcc.patch
 
 build:
   number: 0
