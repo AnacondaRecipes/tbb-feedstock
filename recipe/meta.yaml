@@ -57,6 +57,9 @@ outputs:
   - name: tbb-devel
     build:
       script: {{ build }} --no-rebuild --install-devel --install-docs
+      run_exports:
+        # excellent compatibility: https://abi-laboratory.pro/index.php?view=timeline&l=tbb
+        - {{ pin_subpackage('tbb') }}
     requirements:
       build:
         - python *
