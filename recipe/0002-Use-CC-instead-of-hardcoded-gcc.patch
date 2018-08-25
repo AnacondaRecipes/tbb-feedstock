@@ -1,0 +1,66 @@
+From 959ad5260eef0f538e13519f584ebe54f426aae6 Mon Sep 17 00:00:00 2001
+From: Nehal J Wani <nehaljw.kkd1@gmail.com>
+Date: Sat, 25 Aug 2018 07:34:04 -0500
+Subject: [PATCH 2/2] Use CC instead of hardcoded gcc
+
+---
+ build/linux.gcc.inc | 10 +++++-----
+ build/linux.inc     |  2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/build/linux.gcc.inc b/build/linux.gcc.inc
+index 6cb89d1..78f7949 100644
+--- a/build/linux.gcc.inc
++++ b/build/linux.gcc.inc
+@@ -40,22 +40,22 @@ LINK_FLAGS = -Wl,-rpath-link=. -rdynamic
+ C_FLAGS = $(CPLUS_FLAGS)
+ 
+ # gcc 4.2 and higher support OpenMP
+-ifneq (,$(shell gcc -dumpversion | egrep  "^(4\.[2-9]|[5-9])"))
++ifneq (,$(shell $(CC) -dumpversion | egrep  "^(4\.[2-9]|[5-9])"))
+     OPENMP_FLAG = -fopenmp
+ endif
+ 
+ # gcc 4.8 and later support RTM intrinsics, but require command line switch to enable them
+-ifneq (,$(shell gcc -dumpversion | egrep  "^(4\.[8-9]|[5-9])"))
++ifneq (,$(shell $(CC) -dumpversion | egrep  "^(4\.[8-9]|[5-9])"))
+     RTM_KEY = -mrtm
+ endif
+ 
+ # gcc 4.0 and later have -Wextra that is used by some our customers.
+-ifneq (,$(shell gcc -dumpversion | egrep  "^([4-9])"))
++ifneq (,$(shell $(CC) -dumpversion | egrep  "^([4-9])"))
+     WARNING_KEY += -Wextra
+ endif
+ 
+ # gcc 5.0 and later have -Wsuggest-override and -Wno-sized-deallocation options
+-ifneq (,$(shell gcc -dumpversion | egrep  "^([5-9])"))
++ifneq (,$(shell $(CC) -dumpversion | egrep  "^([5-9])"))
+     # enable -Wsuggest-override via a pre-included header in order to limit to C++11 and above
+     INCLUDE_TEST_HEADERS = -include $(tbb_root)/src/test/harness_preload.h
+     WARNING_SUPPRESS += -Wno-sized-deallocation
+@@ -63,7 +63,7 @@ endif
+ 
+ # gcc 6.0 and later have -flifetime-dse option that controls
+ # elimination of stores done outside the object lifetime
+-ifneq (,$(shell gcc -dumpversion | egrep  "^([6-9])"))
++ifneq (,$(shell $(CC) -dumpversion | egrep  "^([6-9])"))
+     # keep pre-contruction stores for zero initialization
+     DSE_KEY = -flifetime-dse=1
+ endif
+diff --git a/build/linux.inc b/build/linux.inc
+index 8e58f1e..747cbf2 100644
+--- a/build/linux.inc
++++ b/build/linux.inc
+@@ -59,7 +59,7 @@ ifndef arch
+ endif
+ 
+ ifndef runtime
+-        export gcc_version:=$(shell gcc -dumpversion)
++        export gcc_version:=$(shell $(CC) -dumpversion)
+         os_version:=$(shell uname -r)
+         os_kernel_version:=$(shell uname -r | sed -e 's/-.*$$//')
+         export os_glibc_version_full:=$(shell getconf GNU_LIBC_VERSION | grep glibc | sed -e 's/^glibc //')
+-- 
+2.18.0
+

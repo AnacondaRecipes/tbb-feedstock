@@ -1,0 +1,25 @@
+From 73e1ff06501f7a7ffc7950d8f05240220d35bf9c Mon Sep 17 00:00:00 2001
+From: Nehal J Wani <nehaljw.kkd1@gmail.com>
+Date: Sat, 25 Aug 2018 07:18:34 -0500
+Subject: [PATCH 1/2] Discard redefinition of aligned_alloc
+
+---
+ src/tbbmalloc/proxy.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/tbbmalloc/proxy.cpp b/src/tbbmalloc/proxy.cpp
+index 423b839..52b036c 100644
+--- a/src/tbbmalloc/proxy.cpp
++++ b/src/tbbmalloc/proxy.cpp
+@@ -243,7 +243,7 @@ struct mallinfo mallinfo() __THROW
+ size_t dlmalloc_usable_size(const void *ptr) __attribute__ ((alias ("malloc_usable_size")));
+ #else // __ANDROID__
+ // C11 function, supported starting GLIBC 2.16
+-void *aligned_alloc(size_t alignment, size_t size) __attribute__ ((alias ("memalign")));
++// void *aligned_alloc(size_t alignment, size_t size) __attribute__ ((alias ("memalign")));
+ // Those non-standard functions are exported by GLIBC, and might be used
+ // in conjunction with standard malloc/free, so we must ovberload them.
+ // Bionic doesn't have them. Not removing from the linker scripts,
+-- 
+2.18.0
+
