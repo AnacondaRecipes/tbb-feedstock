@@ -42,7 +42,7 @@ requirements:
 
 test:
   requires:
-    - python *               # any python version is ok for sake of testing of shared libraries
+    - python <3.8               # any python version is ok for sake of testing of shared libraries
   commands:
     - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.so.2']       ['TBB_runtime_interface_version']()"  # [linux]
     - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb${SHLIB_EXT}']['TBB_runtime_interface_version']()"  # [unix and not linux]
