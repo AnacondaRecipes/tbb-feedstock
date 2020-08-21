@@ -1,17 +1,13 @@
-{% set version = "2020.0" %}
+{% set version = "2020.1" %}
 
 {% set year = version.split('.')[0]|int %}
 {% set update = version.split('.')[1]|int %}
 {% if version.split('.').__len__() == 2 %}
-{%  if update == 0 %}
-{%   set vtag = "%d" % year %}
-{%  else %}
-{%   set vtag = "%d_U%d" % (year, update) %}
-{%  endif %}
+{%  set vtag = "v%d.%d" % (year, update) %}  # since 2020
 {% else %}  # have to take into account for sake of the bot
 {%  set vtag = "malformed_" + version %}
 {% endif %}
-{% set vinterface = 11100 %}  # just guess, does not fit the previous versions before 2018
+{% set vinterface = 11100 + update %}  # just guess for 2020 series of updates
 
 {% set winfl = '--make-tool=mingw32-make --build-prefix=vc%VS_MAJOR%' %}
 # overriding -MD flag for issue #36
@@ -25,11 +21,10 @@ package:
 source:
   fn: tbb{{ vtag }}_oss_src.tgz
   url: https://github.com/intel/tbb/archive/{{ vtag }}.tar.gz
-  sha256: db80f4f7abb95c2d08fe64abdc0a9250903e4c725f1c667ac517450de426023a
+  sha256: 7c96a150ed22bc3c6628bc3fef9ed475c00887b26d37bca61518d76a56510971
 
 build:
   number: 0
-  skip: true  # [win and py2k]
   script_env:
     - OS    # [win]
 
@@ -42,11 +37,11 @@ requirements:
 
 test:
   requires:
-    - python <3.8               # any python version is ok for sake of testing of shared libraries
+    - python *               # any python version is ok for sake of testing of shared libraries
   commands:
     - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.so.2']       ['TBB_runtime_interface_version']()"  # [linux]
     - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb${SHLIB_EXT}']['TBB_runtime_interface_version']()"  # [unix and not linux]
-    - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'tbb.dll']           ['TBB_runtime_interface_version']()"  # [win]
+    - python -c "import ctypes, os; os.add_dll_directory(os.environ['LIBRARY_BIN']); assert {{ vinterface }} == ctypes.cdll[r'tbb.dll'] ['TBB_runtime_interface_version']()"  # [win]
 
 outputs:
   - name: tbb
@@ -76,13 +71,10 @@ outputs:
       source_files:
         - examples/test_all/fibonacci
       commands:
-        - cd examples\test_all\fibonacci                    # [win]
-        - set INCLUDE=%INCLUDE%;%LIBRARY_INC%               # [win]
-        - set LIB=%LIB%;%LIBRARY_LIB%                       # [win]
-        - nmake /f Makefile.windows                         # [win]
-        - cmake -S examples/test_all/fibonacci -B test-bld  # [not win]
-        - cmake --build test-bld                            # [not win]
-        - cmake -E env test-bld/fibonacci                   # [not win]
+        - set "CMAKE_GENERATOR=NMake Makefiles"          # [win]
+        - cmake -S examples/test_all/fibonacci -B test-bld
+        - cmake --build test-bld --config release
+        - cmake -E env test-bld/fibonacci                # [not win or not py2k]
 
   - name: tbb4py
     build:
@@ -93,7 +85,6 @@ outputs:
         - m2w64-make                                     # [win]
         - make                                           # [unix]
         - swig
-        - make                                           # [unix]
       host:
         - python
         - {{ pin_subpackage('tbb-devel', exact=True) }}
@@ -118,7 +109,7 @@ outputs:
 
 about:
   home: http://www.threadingbuildingblocks.org
-  license: Apache 2.0
+  license: Apache-2.0
   license_file: LICENSE
   summary: High level abstract threading library
   dev_url: https://github.com/01org/tbb
