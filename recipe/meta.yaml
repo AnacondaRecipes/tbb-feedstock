@@ -11,16 +11,16 @@
 # but internal patch version is 0, handle it for interface version.
 {% set vinterface = "%d" % (vbinary * 1000 + vminor * 10 + (vpatch if vmajor != 2021 or vminor != 1 else 0)) %}
 
-{% set cmake_args = "$CMAKE_ARGS" %}                                                 # [not win]
-{% set cmake_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PREFIX%" %}  # [win]
+{% set cmake_args = "${CMAKE_ARGS} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release" %}   # [not win]
+{% set cmake_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%PREFIX% -DCMAKE_INSTALL_PREFIX=%PREFIX%" %}  # [win]
 
 # Use specific test list agreed with TBB team to cover core functionality on high level.
 # Execution of all tests is too heavy task for packaging CI.
 {% set tests = "test_parallel_for test_tbb_header conformance_version test_malloc_compliance test_flow_graph test_arena_constraints" %}
 {% set ctest_regex = "^(%s)$" % (tests.replace(' ', '|')) %}
 
-{% set tbb4py_build_dir = "build_$PKG_HASH" %}   # [not win]
-{% set tbb4py_build_dir = "build_%PKG_HASH%" %}  # [win]
+{% set tbb4py_build_dir = 'build_py${PY_VER}h${PKG_HASH}' %}   # [not win]
+{% set tbb4py_build_dir = 'build_py%PY_VER%h%PKG_HASH%' %}  # [win]
 
 package:
   name: tbb
@@ -116,7 +116,6 @@ outputs:
     requirements:
       build:
         - python                                 # [build_platform != target_platform]
-        - cross-python_{{ target_platform }}     # [build_platform != target_platform]
         - {{ compiler('cxx') }}
         - ninja  # [win]
         - make   # [not win]
