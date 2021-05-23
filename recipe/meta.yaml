@@ -19,7 +19,7 @@ package:
 source:
   fn: tbb{{ vtag }}_oss_src.tgz
   url: https://github.com/01org/tbb/archive/{{ vtag }}.tar.gz
-  sha256: c4c2896af527392496c5e01ef8579058a71b6eebbd695924cd138841c13f07be
+  sha256: b8dbab5aea2b70cf07844f86fa413e549e099aa3205b6a04059ca92ead93a372
 
 build:
   number: 0
@@ -31,6 +31,7 @@ requirements:
     - python *
     - {{ compiler('cxx') }}
     - m2w64-make                                         # [win]
+    - make    # [linux]
 
 test:
   requires:
@@ -53,6 +54,7 @@ outputs:
         - python *
         - {{ compiler('cxx') }}
         - m2w64-make                                     # [win]
+        - make  # [linux]
       run:
         - {{ pin_subpackage('tbb', exact=True) }}        # development package is for specific version of tbb
     test:
@@ -71,6 +73,7 @@ outputs:
         - {{ compiler('cxx') }}
         - m2w64-make                                     # [win]
         - swig
+        - make  # [linux]
       host:
         - python
         - {{ pin_subpackage('tbb-devel', exact=True) }}
