@@ -47,6 +47,8 @@ requirements:
   build:
     - python *
     - {{ compiler('cxx') }}
+    - git
+    - patch  # [not win]
     - ninja  # [win]
     - make   # [not win]
     - cmake
