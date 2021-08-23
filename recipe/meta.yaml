@@ -15,10 +15,10 @@
 # tbb4py files should be installed into PREFIX.
 # See https://docs.conda.io/projects/conda-build/en/latest/user-guide/environment-variables.html.
 # On non-Windows CMAKE_ARGS already contains CMAKE_INSTALL_PREFIX.
-{% set cmake_args = "${CMAKE_ARGS} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release" %}           # [not win]
-{% set cmake_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%PREFIX% -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX%" %}                # [win]
-{% set cmake_tbb4py_args = "${CMAKE_ARGS} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release" %}    # [not win]
-{% set cmake_tbb4py_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PREFIX%" %}                                              # [win]
+{% set cmake_args = "$CMAKE_ARGS" %}                                                         # [not win]
+{% set cmake_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX%" %}  # [win]
+{% set cmake_tbb4py_args = "$CMAKE_ARGS" %}                                                  # [not win]
+{% set cmake_tbb4py_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PREFIX%" %}   # [win]
 
 # Use specific test list agreed with TBB team to cover core functionality on high level.
 # Execution of all tests is too heavy task for packaging CI.
@@ -41,11 +41,11 @@ source:
     - 0007-Remove-arch-macros-checks-for-getSmallObjectIndex.patch
 
 build:
-  number: 0
+  number: 1
 
 requirements:
   build:
-    - python *
+    - python
     - {{ compiler('cxx') }}
     - git
     - patch  # [not win]
@@ -55,7 +55,7 @@ requirements:
 
 test:
   requires:
-    - python *               # any python version is ok for sake of testing of shared libraries
+    - python              # any python version is ok for sake of testing of shared libraries
   commands:
     - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.so.{{ vbinary }}.{{ vminor }}']       ['TBB_runtime_interface_version']()"  # [linux]
     - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.{{ vbinary }}.{{ vminor }}${SHLIB_EXT}']['TBB_runtime_interface_version']()"  # [unix and not linux]
@@ -81,7 +81,7 @@ outputs:
         - tbb >={{ version }}
     requirements:
       build:
-        - python *
+        - python
         - {{ compiler('cxx') }}
         - ninja  # [win]
         - make   # [not win]
@@ -120,7 +120,6 @@ outputs:
         - cmake -DCOMPONENT=tbb4py -P {{ tbb4py_build_dir }}/cmake_install.cmake
     requirements:
       build:
-        - python                                 # [build_platform != target_platform]
         - {{ compiler('cxx') }}
         - ninja  # [win]
         - make   # [not win]
