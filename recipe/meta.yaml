@@ -1,4 +1,4 @@
-{% set version = "2020.1" %}
+{% set version = "2020.2" %}
 
 {% set year = version.split('.')[0]|int %}
 {% set update = version.split('.')[1]|int %}
@@ -12,7 +12,7 @@
 {% set winfl = '--make-tool=mingw32-make --build-prefix=vc%VS_MAJOR%' %}
 # overriding -MD flag for issue #36
 {% set build = 'python build/build.py --build-args="CXXFLAGS= CFLAGS=" '+winfl %}    # [win]
-{% set build = 'python build/build.py --build-args="stdver=c++11 runtime=conda"' %}  # [unix]
+{% set build = 'arch="${ARCH}" python build/build.py --build-args="stdver=c++11 runtime=conda"' %}  # [unix]
 
 package:
   name: tbb
@@ -21,7 +21,7 @@ package:
 source:
   fn: tbb{{ vtag }}_oss_src.tgz
   url: https://github.com/intel/tbb/archive/{{ vtag }}.tar.gz
-  sha256: 48d51c63b16787af54e1ee4aaf30042087f20564b4eecf9a032d5568bc2f0bf8
+  sha256: 4804320e1e6cbe3a5421997b52199e3c1a3829b2ecb6489641da4b8e32faf500
 
 build:
   number: 0
