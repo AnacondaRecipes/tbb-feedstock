@@ -1,4 +1,4 @@
-{% set version = "2021.3.0" %}
+{% set version = "2021.4.0" %}
 
 {% set vmajor = version.split('.')[0]|int %}
 {% set vminor = version.split('.')[1]|int %}
@@ -25,7 +25,8 @@
 {% set tests = "test_parallel_for test_tbb_header conformance_version test_malloc_compliance test_flow_graph test_arena_constraints" %}
 {% set ctest_regex = "^(%s)$" % (tests.replace(' ', '|')) %}
 
-{% set tbb4py_build_dir = 'build_py${PY_VER}h${PKG_HASH}' %}   # [not win]
+{% set tbb4py_build_dir = "build_$PKG_HASH" %}   # [ppc64le]
+{% set tbb4py_build_dir = 'build_py${PY_VER}h${PKG_HASH}' %}   # [not win and not ppc64le]
 {% set tbb4py_build_dir = 'build_py%PY_VER%h%PKG_HASH%' %}  # [win]
 
 package:
@@ -35,13 +36,13 @@ package:
 source:
   fn: {{ vtag }}.tar.gz
   url: https://github.com/oneapi-src/oneTBB/archive/{{ vtag }}.tar.gz
-  sha256: 8f616561603695bbb83871875d2c6051ea28f8187dbe59299961369904d1d49e
-  patches:
-    - 0004-Fix-concurrent-vector-on-win.patch                 # [win]
-    - 0007-Remove-arch-macros-checks-for-getSmallObjectIndex.patch
+  sha256: 021796c7845e155e616f5ecda16daa606ebb4c6f90b996e5c08aebab7a8d3de3
+  #patches:
+    #- 0004-Fix-concurrent-vector-on-win.patch                 # [win]
+    #- 0007-Remove-arch-macros-checks-for-getSmallObjectIndex.patch
 
 build:
-  number: 1
+  number: 0
 
 requirements:
   build:
@@ -49,13 +50,14 @@ requirements:
     - {{ compiler('cxx') }}
     - git
     - patch  # [not win]
+    - m2-patch  # [win]
     - ninja  # [win]
     - make   # [not win]
     - cmake
 
 test:
   requires:
-    - python              # any python version is ok for sake of testing of shared libraries
+    - python <3.10             # any python version is ok for sake of testing of shared libraries
   commands:
     - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.so.{{ vbinary }}.{{ vminor }}']       ['TBB_runtime_interface_version']()"  # [linux]
     - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.{{ vbinary }}.{{ vminor }}${SHLIB_EXT}']['TBB_runtime_interface_version']()"  # [unix and not linux]
@@ -133,7 +135,7 @@ outputs:
         - python
     test:
       requires:
-        - python
+        - python <3.10
         - {{ pin_subpackage('tbb', exact=True) }}        # we want to test with this specific tbb package
       imports:
         - tbb
