@@ -25,8 +25,7 @@
 {% set tests = "test_parallel_for test_tbb_header conformance_version test_malloc_compliance test_flow_graph test_arena_constraints" %}
 {% set ctest_regex = "^(%s)$" % (tests.replace(' ', '|')) %}
 
-{% set tbb4py_build_dir = "build_$PKG_HASH" %}   # [ppc64le]
-{% set tbb4py_build_dir = 'build_py${PY_VER}h${PKG_HASH}' %}   # [not win and not ppc64le]
+{% set tbb4py_build_dir = 'build_py${PY_VER}h${PKG_HASH}' %}   # [not win]
 {% set tbb4py_build_dir = 'build_py%PY_VER%h%PKG_HASH%' %}  # [win]
 
 package:
@@ -126,7 +125,7 @@ outputs:
         - ninja  # [win]
         - make   # [not win]
         - cmake
-        - swig
+        - swig >=3.0.6
       host:
         - python
         - {{ pin_subpackage('tbb-devel', exact=True) }}
@@ -147,7 +146,7 @@ outputs:
     about:
       summary: TBB module for Python
       license: Apache 2.0
-      dev_url: https://github.com/oneapi-src/oneTBB
+      dev_url: https://github.com/oneapi-src/oneTBB/tree/master/python
 
 about:
   home: https://github.com/oneapi-src/oneTBB
