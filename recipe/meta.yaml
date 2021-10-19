@@ -15,11 +15,10 @@
 # tbb4py files should be installed into PREFIX.
 # See https://docs.conda.io/projects/conda-build/en/latest/user-guide/environment-variables.html.
 # On non-Windows CMAKE_ARGS already contains CMAKE_INSTALL_PREFIX.
-{% set cmake_args = "$CMAKE_ARGS -DCMAKE_INSTALL_LIBDIR=lib" %}  # [not win] 
-{% set cmake_args = "$CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX" %}  # [not win]                                                       # [not win]
+{% set cmake_args = "$CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_INSTALL_LIBDIR=lib" %}  # [not win]                                                    # [not win]
 {% set cmake_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX%" %}  # [win]
 
-{% set cmake_tbb4py_args = "$CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX" %}  # [not win]                                                  # [not win]
+{% set cmake_tbb4py_args = "$CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_INSTALL_LIBDIR=lib" %}  # [not win]                                                  # [not win]
 {% set cmake_tbb4py_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PREFIX%" %}   # [win]
 
 # Use specific test list agreed with TBB team to cover core functionality on high level.
