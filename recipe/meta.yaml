@@ -15,13 +15,13 @@
 # tbb4py files should be installed into PREFIX.
 # See https://docs.conda.io/projects/conda-build/en/latest/user-guide/environment-variables.html.
 # On non-Windows CMAKE_ARGS already contains CMAKE_INSTALL_PREFIX.
-{% set cmake_args = "$CMAKE_ARGS" %}  # [not win and not ppc64le] 
-{% set cmake_args = "$CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_INSTALL_LIBDIR=lib" %}  # [ppc64le]                                                    # [not win]
-{% set cmake_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX%" %}  # [win]
+{% set cmake_args = "$CMAKE_ARGS -DPython3_EXECUTABLE=${PYTHON} -DPYTHON_EXECUTABLE=${PYTHON}" %}  # [not win and not ppc64le] 
+{% set cmake_args = "$CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_INSTALL_LIBDIR=lib -DPython3_EXECUTABLE=${PYTHON} -DPYTHON_EXECUTABLE=${PYTHON}" %}  # [ppc64le]
+{% set cmake_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX% -DPython3_EXECUTABLE=%PYTHON% -DPYTHON_EXECUTABLE=%PYTHON%" %}  # [win]
 
-{% set cmake_tbb4py_args = "$CMAKE_ARGS" %}  # [not win and not ppc64le]
-{% set cmake_tbb4py_args = "$CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_INSTALL_LIBDIR=lib" %}  # [ppc64le]                                                  # [not win]
-{% set cmake_tbb4py_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PREFIX%" %}   # [win]
+{% set cmake_tbb4py_args = "$CMAKE_ARGS -DPython3_EXECUTABLE=${PYTHON} -DPYTHON_EXECUTABLE=${PYTHON}" %}  # [not win and not ppc64le]
+{% set cmake_tbb4py_args = "$CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_INSTALL_LIBDIR=lib -DPython3_EXECUTABLE=${PYTHON} -DPYTHON_EXECUTABLE=${PYTHON}" %}  # [ppc64le]
+{% set cmake_tbb4py_args = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PREFIX% -DPython3_EXECUTABLE=%PYTHON% -DPYTHON_EXECUTABLE=%PYTHON%" %}   # [win]
 
 # Use specific test list agreed with TBB team to cover core functionality on high level.
 # Execution of all tests is too heavy task for packaging CI.
@@ -59,7 +59,7 @@ requirements:
 
 test:
   requires:
-    - python <3.10
+    - python
   commands:
     - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.so.{{ vbinary }}.{{ vminor }}']       ['TBB_runtime_interface_version']()"  # [linux]
     - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.{{ vbinary }}.{{ vminor }}${SHLIB_EXT}']['TBB_runtime_interface_version']()"  # [unix and not linux]
@@ -141,7 +141,7 @@ outputs:
         - python
     test:
       requires:
-        - python <3.10
+        - python
         - {{ pin_subpackage('tbb', exact=True) }}        # we want to test with this specific tbb package
       imports:
         - tbb
