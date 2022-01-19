@@ -45,8 +45,6 @@ source:
 
 build:
   number: 0
-  missing_dso_whitelist:                # [s390x]
-    - "*/ld64.so.1"                     # [s390x]
 
 requirements:
   build:
@@ -77,6 +75,7 @@ outputs:
         - cmake -DCOMPONENT=runtime -P build/cmake_install.cmake
       missing_dso_whitelist:
         - "$RPATH/libtbbmalloc.so.2"  # [ppc64le]
+        - "*/ld64.so.1"               # [s390x]
 
   - name: tbb-devel
     build:
@@ -128,6 +127,7 @@ outputs:
         - cmake -DCOMPONENT=tbb4py -P {{ tbb4py_build_dir }}/cmake_install.cmake
       missing_dso_whitelist:
         - "$RPATH/libtbb.so.12"  # [ppc64le]
+        - "*/ld64.so.1"          # [s390x]
     requirements:
       build:
         - {{ compiler('cxx') }}
