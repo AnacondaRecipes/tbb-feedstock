@@ -154,7 +154,7 @@ outputs:
         - python -m tbb test                             # [not osx]  # XXX fix it
     about:
       summary: TBB module for Python
-      license: Apache 2.0
+      license: Apache-2.0
       dev_url: https://github.com/oneapi-src/oneTBB/tree/master/python
 
 about:
