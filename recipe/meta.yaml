@@ -1,4 +1,4 @@
-{% set version = "2021.4.0" %}
+{% set version = "2021.5.0" %}
 
 {% set vmajor = version.split('.')[0]|int %}
 {% set vminor = version.split('.')[1]|int %}
@@ -38,10 +38,10 @@ package:
 source:
   fn: {{ vtag }}.tar.gz
   url: https://github.com/oneapi-src/oneTBB/archive/{{ vtag }}.tar.gz
-  sha256: 021796c7845e155e616f5ecda16daa606ebb4c6f90b996e5c08aebab7a8d3de3
-  #patches:
-    #- 0004-Fix-concurrent-vector-on-win.patch                 # [win]
-    #- 0007-Remove-arch-macros-checks-for-getSmallObjectIndex.patch
+  sha256: e5b57537c741400cf6134b428fc1689a649d7d38d9bb9c1b6d64f092ea28178a
+  patches:                              # [s390x]
+    # see: https://github.com/oneapi-src/oneTBB/pull/550
+    - 0001-define-ITT_ARCH_IA64.patch   # [s390x]
 
 build:
   number: 0
@@ -75,6 +75,7 @@ outputs:
         - cmake -DCOMPONENT=runtime -P build/cmake_install.cmake
       missing_dso_whitelist:
         - "$RPATH/libtbbmalloc.so.2"  # [ppc64le]
+        - "*/ld64.so.1"               # [s390x]
 
   - name: tbb-devel
     build:
@@ -126,6 +127,7 @@ outputs:
         - cmake -DCOMPONENT=tbb4py -P {{ tbb4py_build_dir }}/cmake_install.cmake
       missing_dso_whitelist:
         - "$RPATH/libtbb.so.12"  # [ppc64le]
+        - "*/ld64.so.1"          # [s390x]
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -152,7 +154,7 @@ outputs:
         - python -m tbb test                             # [not osx]  # XXX fix it
     about:
       summary: TBB module for Python
-      license: Apache 2.0
+      license: Apache-2.0
       dev_url: https://github.com/oneapi-src/oneTBB/tree/master/python
 
 about:
