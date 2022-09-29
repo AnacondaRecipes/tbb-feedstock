@@ -42,6 +42,7 @@ source:
 
 build:
   number: 0
+  skip: True  # [osx and arm64]
 
 requirements:
   build:
