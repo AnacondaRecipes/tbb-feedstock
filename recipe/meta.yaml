@@ -158,6 +158,7 @@ outputs:
 about:
   home: https://github.com/oneapi-src/oneTBB
   license: Apache-2.0
+  license_family: Apache
   license_file:
     - LICENSE.txt
     - third-party-programs.txt
