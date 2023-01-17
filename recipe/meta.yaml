@@ -41,9 +41,7 @@ source:
   sha256: 4897dd106d573e9dacda8509ca5af1a0e008755bf9c383ef6777ac490223031f
 
 build:
-  number: 0
-# See https://github.com/AnacondaRecipes/tbb-feedstock/issues/6
-  skip: True  # [osx and arm64]
+  number: 1
 
 requirements:
   build:
@@ -150,7 +148,7 @@ outputs:
       commands:
         - python -m TBB -h
         - python -m tbb -h
-        - python -m tbb test                             # [not osx]  # XXX fix it
+        - python -m tbb test
     about:
       summary: TBB module for Python
       license: Apache-2.0
