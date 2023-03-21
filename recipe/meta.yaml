@@ -166,7 +166,7 @@ about:
     oneTBB is a flexible C++ library that simplifies the work of adding parallelism to complex applications, even if you
     are not a threading expert.
   dev_url: https://github.com/oneapi-src/oneTBB
-  doc_url: https://software.intel.com/en-us/oneapi-tbb-documentation
+  doc_url: https://www.intel.com/content/www/us/en/developer/tools/oneapi/onetbb.html
 
 extra:
   recipe-maintainers:
