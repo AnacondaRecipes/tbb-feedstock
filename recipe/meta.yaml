@@ -45,7 +45,6 @@ build:
 
 requirements:
   build:
-    - python
     - {{ compiler('cxx') }}
     - ninja  # [win]
     - make   # [not win]
@@ -72,7 +71,6 @@ outputs:
         - "*/ld64.so.1"               # [s390x]
     requirements:
       build:
-        - python
         - {{ compiler('cxx') }}
         - ninja  # [win]
         - make   # [not win]
@@ -89,7 +87,6 @@ outputs:
         - tbb >={{ version }}
     requirements:
       build:
-        - python
         - {{ compiler('cxx') }}
         - ninja  # [win]
         - make   # [not win]
