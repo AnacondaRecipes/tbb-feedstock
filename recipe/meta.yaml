@@ -32,7 +32,7 @@
 {% set tbb4py_build_dir = 'build_py%PY_VER%h%PKG_HASH%' %}  # [win]
 
 package:
-  name: tbb
+  name: tbb-split
   version: {{ version }}
 
 source:
