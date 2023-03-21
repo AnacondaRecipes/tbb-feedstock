@@ -71,6 +71,14 @@ outputs:
       missing_dso_whitelist:
         - "$RPATH/libtbbmalloc.so.2"  # [ppc64le]
         - "*/ld64.so.1"               # [s390x]
+    requirements:
+      build:
+        - python
+        - {{ compiler('cxx') }}
+        - git
+        - ninja  # [win]
+        - make   # [not win]
+        - cmake
 
   - name: tbb-devel
     build:
