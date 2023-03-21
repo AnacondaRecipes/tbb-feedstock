@@ -47,7 +47,6 @@ requirements:
   build:
     - python
     - {{ compiler('cxx') }}
-    - git
     - ninja  # [win]
     - make   # [not win]
     - cmake
@@ -75,7 +74,6 @@ outputs:
       build:
         - python
         - {{ compiler('cxx') }}
-        - git
         - ninja  # [win]
         - make   # [not win]
         - cmake
