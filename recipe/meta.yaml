@@ -50,14 +50,6 @@ requirements:
     - make   # [not win]
     - cmake
 
-test:
-  requires:
-    - python
-  commands:
-    - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.so.{{ vbinary }}.{{ vminor }}']       ['TBB_runtime_interface_version']()"  # [linux]
-    - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.{{ vbinary }}.{{ vminor }}${SHLIB_EXT}']['TBB_runtime_interface_version']()"  # [unix and not linux]
-    - python -c "import ctypes, os; os.add_dll_directory(os.environ['LIBRARY_BIN']); assert {{ vinterface }} == ctypes.cdll[r'tbb{{ vbinary }}.dll'] ['TBB_runtime_interface_version']()"  # [win]
-
 outputs:
   - name: tbb
     build:
@@ -75,6 +67,13 @@ outputs:
         - ninja  # [win]
         - make   # [not win]
         - cmake
+    test:
+      requires:
+        - python
+      commands:
+        - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.so.{{ vbinary }}.{{ vminor }}']       ['TBB_runtime_interface_version']()"  # [linux]
+        - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.{{ vbinary }}.{{ vminor }}${SHLIB_EXT}']['TBB_runtime_interface_version']()"  # [unix and not linux]
+        - python -c "import ctypes, os; os.add_dll_directory(os.environ['LIBRARY_BIN']); assert {{ vinterface }} == ctypes.cdll[r'tbb{{ vbinary }}.dll'] ['TBB_runtime_interface_version']()"  # [win]
 
   - name: tbb-devel
     build:
