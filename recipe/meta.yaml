@@ -141,7 +141,9 @@ outputs:
     test:
       requires:
         - python
-        - {{ pin_subpackage('tbb', exact=True) }}        # we want to test with this specific tbb package
+        - tbb {{ version }}                                # we want to test with this specific tbb package.
+                                                           # This will resolve to the most recent build number of this
+                                                           # package version, which will be the one just built.
       imports:
         - tbb
         - TBB
