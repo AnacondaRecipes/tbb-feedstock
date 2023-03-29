@@ -36,7 +36,6 @@ package:
   version: {{ version }}
 
 source:
-  fn: {{ vtag }}.tar.gz
   url: https://github.com/oneapi-src/oneTBB/archive/{{ vtag }}.tar.gz
   sha256: eee380323bb7ce864355ed9431f85c43955faaae9e9bce35c62b372d7ffd9f8b
 
@@ -141,9 +140,6 @@ outputs:
     test:
       requires:
         - python
-        - tbb {{ version }}                                # we want to test with this specific tbb package.
-                                                           # This will resolve to the most recent build number of this
-                                                           # package version, which will be the one just built.
       imports:
         - tbb
         - TBB
@@ -168,7 +164,7 @@ about:
     oneTBB is a flexible C++ library that simplifies the work of adding parallelism to complex applications, even if you
     are not a threading expert.
   dev_url: https://github.com/oneapi-src/oneTBB
-  doc_url: https://www.intel.com/content/www/us/en/developer/tools/oneapi/onetbb.html
+  doc_url: https://oneapi-src.github.io/oneTBB/
 
 extra:
   recipe-maintainers:
