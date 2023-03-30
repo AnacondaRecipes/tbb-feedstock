@@ -45,6 +45,7 @@ build:
 requirements:
   build:
     - {{ compiler('cxx') }}
+    # the ninja cmake generator only works on windows, for some reason
     - ninja  # [win]
     - make   # [not win]
     - cmake
