@@ -1,4 +1,4 @@
-{% set version = "2021.7.0" %}
+{% set version = "2021.8.0" %}
 
 {% set vmajor = version.split('.')[0]|int %}
 {% set vminor = version.split('.')[1]|int %}
@@ -32,33 +32,23 @@
 {% set tbb4py_build_dir = 'build_py%PY_VER%h%PKG_HASH%' %}  # [win]
 
 package:
-  name: tbb
+  name: tbb-split
   version: {{ version }}
 
 source:
-  fn: {{ vtag }}.tar.gz
   url: https://github.com/oneapi-src/oneTBB/archive/{{ vtag }}.tar.gz
-  sha256: 2cae2a80cda7d45dc7c072e4295c675fff5ad8316691f26f40539f7e7e54c0cc
+  sha256: eee380323bb7ce864355ed9431f85c43955faaae9e9bce35c62b372d7ffd9f8b
 
 build:
   number: 0
 
 requirements:
   build:
-    - python
     - {{ compiler('cxx') }}
-    - git
+    # the ninja cmake generator only works on windows, for some reason
     - ninja  # [win]
     - make   # [not win]
     - cmake
-
-test:
-  requires:
-    - python
-  commands:
-    - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.so.{{ vbinary }}.{{ vminor }}']       ['TBB_runtime_interface_version']()"  # [linux]
-    - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.{{ vbinary }}.{{ vminor }}${SHLIB_EXT}']['TBB_runtime_interface_version']()"  # [unix and not linux]
-    - python -c "import ctypes, os; os.add_dll_directory(os.environ['LIBRARY_BIN']); assert {{ vinterface }} == ctypes.cdll[r'tbb{{ vbinary }}.dll'] ['TBB_runtime_interface_version']()"  # [win]
 
 outputs:
   - name: tbb
@@ -71,6 +61,19 @@ outputs:
       missing_dso_whitelist:
         - "$RPATH/libtbbmalloc.so.2"  # [ppc64le]
         - "*/ld64.so.1"               # [s390x]
+    requirements:
+      build:
+        - {{ compiler('cxx') }}
+        - ninja  # [win]
+        - make   # [not win]
+        - cmake
+    test:
+      requires:
+        - python
+      commands:
+        - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.so.{{ vbinary }}.{{ vminor }}']       ['TBB_runtime_interface_version']()"  # [linux]
+        - python -c "import ctypes; assert {{ vinterface }} == ctypes.cdll[r'libtbb.{{ vbinary }}.{{ vminor }}${SHLIB_EXT}']['TBB_runtime_interface_version']()"  # [unix and not linux]
+        - python -c "import ctypes, os; os.add_dll_directory(os.environ['LIBRARY_BIN']); assert {{ vinterface }} == ctypes.cdll[r'tbb{{ vbinary }}.dll'] ['TBB_runtime_interface_version']()"  # [win]
 
   - name: tbb-devel
     build:
@@ -83,7 +86,6 @@ outputs:
         - tbb >={{ version }}
     requirements:
       build:
-        - python
         - {{ compiler('cxx') }}
         - ninja  # [win]
         - make   # [not win]
@@ -139,7 +141,6 @@ outputs:
     test:
       requires:
         - python
-        - {{ pin_subpackage('tbb', exact=True) }}        # we want to test with this specific tbb package
       imports:
         - tbb
         - TBB
@@ -160,8 +161,11 @@ about:
     - LICENSE.txt
     - third-party-programs.txt
   summary: High level abstract threading library
+  description: |
+    oneTBB is a flexible C++ library that simplifies the work of adding parallelism to complex applications, even if you
+    are not a threading expert.
   dev_url: https://github.com/oneapi-src/oneTBB
-  doc_url: https://software.intel.com/en-us/oneapi-tbb-documentation
+  doc_url: https://oneapi-src.github.io/oneTBB/
 
 extra:
   recipe-maintainers:
