@@ -1,0 +1,78 @@
+From 1df9b67b7f3ee56dd210bf33d6045bb440305f7c Mon Sep 17 00:00:00 2001
+From: Brian Wing <bwing@anaconda.com>
+Date: Thu, 6 Feb 2025 09:34:18 -0500
+Subject: [PATCH] Avoid creating python eggs
+
+---
+ python/CMakeLists.txt | 35 +++++++++++++++++++----------------
+ python/setup.py       |  1 +
+ 2 files changed, 20 insertions(+), 16 deletions(-)
+
+diff --git a/python/CMakeLists.txt b/python/CMakeLists.txt
+index 748921a5..abf18441 100644
+--- a/python/CMakeLists.txt
++++ b/python/CMakeLists.txt
+@@ -32,29 +32,32 @@ foreach(dir ${TBB_INCLUDES})
+ endforeach()
+ string(STRIP "${TBB4PY_INCLUDE_STRING}" TBB4PY_INCLUDE_STRING)
+ 
+-add_custom_target(
+-    python_build
+-    ALL
+-    DEPENDS tbb python_copy
+-    COMMAND
+-    ${PYTHON_EXECUTABLE} ${PYTHON_BUILD_WORK_DIR}/setup.py
+-        build -b${PYTHON_BUILD_WORK_DIR}
+-        build_ext ${TBB4PY_INCLUDE_STRING} -L$<TARGET_FILE_DIR:TBB::tbb>
+-        install --prefix build -f
+-    COMMENT "Build and install to work directory the oneTBB Python module"
+-)
+-
+ add_test(NAME python_test
+          COMMAND ${CMAKE_COMMAND}
+                  -DTBB_BINARIES_PATH=$<TARGET_FILE_DIR:TBB::tbb>
+                  -DPYTHON_MODULE_BUILD_PATH=${PYTHON_BUILD_WORK_DIR}/build
+                  -P ${PROJECT_SOURCE_DIR}/cmake/python/test_launcher.cmake)
+ 
+-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_BUILD_WORK_DIR}/build/
+-        DESTINATION .
+-        COMPONENT tbb4py)
+-
+ if (UNIX AND NOT APPLE)
++    add_custom_target(
++            python_build
++            ALL
++            DEPENDS tbb python_copy
++            COMMAND
++            IRML_LIB_DIR="$<TARGET_FILE_DIR:TBB::irml>"
++            ${PYTHON_EXECUTABLE} -m pip install --no-deps --no-build-isolation -vv ${PYTHON_BUILD_WORK_DIR}/.
++            COMMENT "Build and install to work directory the oneTBB Python module"
++    )
++
+     add_subdirectory(rml)
+     add_dependencies(python_build irml)
++else()
++    add_custom_target(
++            python_build
++            ALL
++            DEPENDS tbb python_copy
++            COMMAND
++            ${PYTHON_EXECUTABLE} -m pip install --no-deps --no-build-isolation -vv ${PYTHON_BUILD_WORK_DIR}/.
++            COMMENT "Build and install to work directory the oneTBB Python module"
++    )
+ endif()
+diff --git a/python/setup.py b/python/setup.py
+index edf8580f..ea6f3c6c 100644
+--- a/python/setup.py
++++ b/python/setup.py
+@@ -69,6 +69,7 @@ _tbb = Extension("tbb._api", ["tbb/api.i"],
+                        os.path.join(tbb_root, 'lib', 'intel64', 'gcc4.8'),  # for Linux
+                        os.path.join(tbb_root, 'lib'),                       # for MacOS
+                        os.path.join(tbb_root, 'lib', 'intel64', 'vc_mt'),   # for Windows
++                       os.getenv('IRML_LIB_DIR', '../..').strip("\""),
+                      ] if not use_compiler_tbb else [],
+         language    ='c++',
+         )
+-- 
+2.39.5 (Apple Git-154)
+
