@@ -1,17 +1,12 @@
-{% set version = "2022.0.0" %}
+{% set name = "tbb" %}
+{% set version = "2022.3.0" %}
 
-{% set vmajor = version.split('.')[0]|int %}
-{% set vminor = version.split('.')[1]|int %}
-{% set vpatch = version.split('.')[2]|int %}
-{% set vbinary = vmajor - 2009 %}
-
+# https://github.com/uxlfoundation/oneTBB/blob/f1862f38f83568d96e814e469ab61f88336cc595/include/oneapi/tbb/version.h#L48
+{% set vinterface = "12170" %}
+{% set vbinary = vinterface|int // 1000 %}
+{% set vminor = (vinterface|int % 1000 / 10)|int %}
 {% set vtag = "v" ~ version.replace(".rc", "-rc") %}
 
-# Official patch version for the first release of 2021 is 1,
-# but internal patch version is 0, handle it for interface version.
-{% set vinterface = "%d" % (vbinary * 1000 + vminor * 10 + (vpatch if vmajor != 2021 or vminor != 1 else 0)) %}
-
-# Libraries on Windows are expected to be installed into LIBRARY_PREFIX.
 # tbb4py files should be installed into PREFIX.
 # See https://docs.conda.io/projects/conda-build/en/latest/user-guide/environment-variables.html.
 # On non-Windows CMAKE_ARGS already contains CMAKE_INSTALL_PREFIX.
@@ -31,54 +26,36 @@
 {% set tests = "test_parallel_for test_tbb_header conformance_version test_flow_graph test_arena_constraints" %}
 {% set ctest_regex = "^(%s)$" % (tests.replace(' ', '|')) %}
 
-{% set tbb4py_build_dir = "build_py${PY_VER}h${PKG_HASH}" %}  # [not win]
-{% set tbb4py_build_dir = "build_py%PY_VER%h%PKG_HASH%" %}    # [win]
-
 package:
-  name: tbb
+  name: {{ name }}-split
   version: {{ version }}
 
 source:
   url: https://github.com/oneapi-src/oneTBB/archive/refs/tags/{{ vtag }}.tar.gz
-  sha256: e8e89c9c345415b17b30a2db3095ba9d47647611662073f7fbf54ad48b7f3c2a
+  sha256: 01598a46c1162c27253a0de0236f520fd8ee8166e9ebb84a4243574f88e6e50a
   patches:
-    - fix-build-gcc-13.3.patch
-    - 0001-Avoid-creating-python-eggs.patch
+    - 0001-fix-setup.patch
 
 build:
   number: 0
 
-requirements:
-  build:
-    - python
-    - {{ compiler('cxx') }}
-    # the ninja cmake generator only works on windows, for some reason
-    - ninja     # [win]
-    - m2-patch  # [win]
-    - patch     # [not win]
-    - make      # [not win]
-    - cmake
-    - pkg-config
-
 outputs:
-  - name: tbb
-    about:
-      summary: TBB Libraries
-      license_file:
-        - LICENSE.txt
-        - third-party-programs.txt
+  - name: {{ name }}
+    requirements:
+      build:
+        - {{ stdlib('c') }}
+        - {{ compiler('cxx') }}
+        - cmake
+        - python
+        - ninja-base
+        - pkg-config
+      host:
+        - libhwloc {{ libhwloc }}
     build:
       script:
-        - set CMAKE_GENERATOR=Ninja      # [win]
-        # unset option that ninja complains about
-        - set CMAKE_GENERATOR_TOOLSET=   # [win]
-        - set CMAKE_GENERATOR_PLATFORM=  # [win]
-        - cmake {{ cmake_args }} -DTBB_TEST=OFF -S . -B build
+        - cmake {{ cmake_args }} -GNinja -DTBB_TEST=OFF -S . -B build
         - cmake --build build --parallel
         - cmake -DCOMPONENT=runtime -P build/cmake_install.cmake
-      missing_dso_whitelist:
-        - "*/ld64.so.1"               # [s390x]
-    requirements:
     test:
       requires:
         - python
@@ -88,39 +65,33 @@ outputs:
         {% set libname = "tbb" ~ vbinary ~ ".dll" %}                       # [win]
         {% set win_extra = "os.add_dll_directory(os.environ['LIBRARY_BIN']); " if win else "" %}
         - python -c "import ctypes, os; {{ win_extra }} assert {{ vinterface }} == ctypes.cdll[r'{{ libname }}']['TBB_runtime_interface_version']()"
-
-  - name: tbb-devel
-    about:
-      summary: TBB Development files
-      license_file:
-        - LICENSE.txt
-        - third-party-programs.txt
+  - name: {{ name }}-devel
+    requirements:
+      build:
+        - {{ stdlib('c') }}
+        - {{ compiler('cxx') }}
+        - cmake
+        - python
+        - ninja-base
+        - pkg-config
+      host:
+        - libhwloc {{ libhwloc }}
+      run:
+        - {{ pin_subpackage('tbb', exact=True) }}  # development package is for specific version of tbb
     build:
       script:
-        - set CMAKE_GENERATOR=Ninja      # [win]
-        - set CMAKE_GENERATOR_TOOLSET=   # [win]
-        - set CMAKE_GENERATOR_PLATFORM=  # [win]
-        - cmake {{ cmake_args }} -DTBB_TEST=OFF -S . -B build
+        - cmake {{ cmake_args }} -GNinja -DTBB_TEST=OFF -S . -B build
         - cmake --build build --parallel
         - cmake -DCOMPONENT=devel -P build/cmake_install.cmake
       run_exports:
         - tbb >={{ version }}
-    requirements:
-      build:
-        - python
-        - {{ compiler('cxx') }}
-        - ninja  # [win]
-        - make   # [not win]
-        - cmake >=3.13
-        - pkg-config
-      run:
-        - {{ pin_subpackage('tbb', exact=True) }}        # development package is for specific version of tbb
     test:
       requires:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
-        - ninja  # [win]
-        - make   # [not win]
         - cmake
+        - python
+        - ninja-base
         - pkg-config
       source_files:
         - cmake
@@ -128,56 +99,44 @@ outputs:
         - CMakeLists.txt
         - include  # some tests depend on files from include
         - integration  # same
-        - src      # some tests depend on files from src
+        - src  # some tests depend on files from src
       commands:
-        - set CMAKE_GENERATOR=Ninja      # [win]
-        - set CMAKE_GENERATOR_TOOLSET=   # [win]
-        - set CMAKE_GENERATOR_PLATFORM=  # [win]
         # Setting TBB_DIR=ON and TBB_FIND_PACKAGE=ON is needed to use libraries from the tested package,
         # but do not build them from sources; real path to TBBConfig files is not required,
         # because CMake will successfully find installed tested package.
-        - cmake {{ cmake_args }} -DTBB_TEST=ON -DTBB_DIR=ON -DTBB_FIND_PACKAGE=ON -S . -B test_build
+        - cmake {{ cmake_args }} -GNinja -DTBB_TEST=ON -DTBB_DIR=ON -DTBB_FIND_PACKAGE=ON -S . -B test_build
         - cmake --build test_build --target {{ tests }} --parallel  # build tests
         - cd test_build
         - ctest -R "{{ ctest_regex }}" --output-on-failure
 
-  - name: tbb4py
-    about:
-      summary: TBB module for Python
-      license: Apache-2.0
-      license_file:
-        - LICENSE.txt
-        - third-party-programs.txt
-      dev_url: https://github.com/oneapi-src/oneTBB/tree/master/python
-    build:
-      script:
-        - set CMAKE_GENERATOR=Ninja      # [win]
-        - set CMAKE_GENERATOR_TOOLSET=   # [win]
-        - set CMAKE_GENERATOR_PLATFORM=  # [win]
-        - export PYTHONPATH="${SP_DIR/${PREFIX}/build}"  # [osx]
-        - cmake {{ cmake_tbb4py_args }} -DTBB4PY_BUILD=ON -DTBB_TEST=OFF -S . -B {{ tbb4py_build_dir }}
-        - cmake --build {{ tbb4py_build_dir }} --target python_build --parallel
-        - cmake -DCOMPONENT=tbb4py -P {{ tbb4py_build_dir }}/cmake_install.cmake
-      missing_dso_whitelist:
-        - "*/ld64.so.1"          # [s390x]
+  - name: {{ name }}4py
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
-        - make   # [not win]
         - cmake
-        - swig
-      host:
         - python
+        - ninja-base
+        - pkg-config
+        - swig
+        - setuptools
+      host:
         - pip
+        - python
         - setuptools
         - {{ pin_subpackage('tbb-devel', exact=True) }}
       run:
-        - tbb >={{ version }}                            # while python module works with any compatible tbb...
+        - tbb >={{ version }}  # while python module works with any compatible tbb...
         - python
+    build:
+      script:
+        - cmake {{ cmake_tbb4py_args }} -GNinja -DTBB4PY_BUILD=ON -DTBB_TEST=OFF -S . -B build
+        - cmake --build build --target python_build --parallel
+        - cmake -DCOMPONENT=tbb4py -P build/cmake_install.cmake
     test:
       requires:
         - python
-        - {{ pin_subpackage('tbb', exact=True) }}        # we want to test with this specific tbb package
+        - {{ pin_subpackage('tbb', exact=True) }}  # we want to test with this specific tbb package
       imports:
         - tbb
         - TBB
