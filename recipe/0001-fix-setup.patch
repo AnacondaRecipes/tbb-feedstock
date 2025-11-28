@@ -1,0 +1,27 @@
+From 7ade426c33eb95048a5f04bb49b5449e6416a300 Mon Sep 17 00:00:00 2001
+From: Ivan Iziumov <iiziumov@anaconda.com>
+Date: Thu, 30 Oct 2025 13:02:06 +0100
+Subject: [PATCH] fix-setup
+
+---
+ python/setup.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/python/setup.py b/python/setup.py
+index edf8580f..ec84e029 100644
+--- a/python/setup.py
++++ b/python/setup.py
+@@ -17,8 +17,8 @@
+ import platform
+ import os
+ 
+-from distutils.core import *
+-from distutils.command.build import build
++from setuptools import *
++from setuptools.command.build import build
+ 
+ rundir = os.getcwd()
+ os.chdir(os.path.abspath(os.path.dirname(__file__)))
+-- 
+2.50.1 (Apple Git-155)
+
