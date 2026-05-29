@@ -115,6 +115,7 @@ outputs:
         - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
         - cmake
+        - pip
         - python
         - ninja-base
         - pkg-config
