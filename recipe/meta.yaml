@@ -1,7 +1,7 @@
 {% set name = "tbb" %}
 {% set version = "2023.0.0" %}
 
-# https://github.com/uxlfoundation/oneTBB/blob/f1862f38f83568d96e814e469ab61f88336cc595/include/oneapi/tbb/version.h#L48
+# https://github.com/uxlfoundation/oneTBB/blob/v2023.0.0/include/oneapi/tbb/version.h#L48
 {% set vinterface = "12180" %}
 {% set vbinary = vinterface|int // 1000 %}
 {% set vminor = (vinterface|int % 1000 / 10)|int %}
