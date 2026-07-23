@@ -37,7 +37,7 @@ source:
     - 0001-fix-setup.patch
 
 build:
-  number: 0
+  number: 1
 
 outputs:
   - name: {{ name }}
