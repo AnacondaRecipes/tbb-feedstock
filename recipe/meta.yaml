@@ -50,8 +50,7 @@ outputs:
         - ninja-base
         - pkg-config
       host:
-        - libhwloc {{ libhwloc }}  # [not osx]
-        - libhwloc  # [osx]
+        - libhwloc {{ libhwloc }}
     build:
       script:
         - cmake {{ cmake_args }} -GNinja -DTBB_TEST=OFF -S . -B build
@@ -76,8 +75,7 @@ outputs:
         - ninja-base
         - pkg-config
       host:
-        - libhwloc {{ libhwloc }}  # [not osx]
-        - libhwloc  # [osx]
+        - libhwloc {{ libhwloc }}
       run:
         - {{ pin_subpackage('tbb', exact=True) }}  # development package is for specific version of tbb
     build:
