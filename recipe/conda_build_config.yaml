@@ -1,3 +1,15 @@
+# need to prevent this error OSX specific:
+# ├─ clangxx_osx-arm64 =20 * is installable and it requires
+# │  └─ clang_osx-arm64 [==20.1.8 hf3c1794_0|==20.1.8 hf3c1794_1], which requires
+# │     └─ clang_impl_osx-arm64 [==20.1.8 h05252e2_0|==20.1.8 h1ae22af_1], which requires
+# │        └─ ld64 =954.16 *, which requires
+# │           └─ libllvm20 >=20.1.8,<20.2.0a0 * with the potential options
+# │              ├─ libllvm20 20.1.8 would require
+# │              │  └─ libxml2 >=2.13.8,<2.14.0a0 *, which can be installed;
+# │              └─ libllvm20 20.1.8 would require
+# │                 └─ libxml2 >=2.14.4,<2.15.0a0 *, which can be installed;
+# └─ libhwloc >=2.14.0,<2.14.1.0a0 * is not installable because it requires
+#    └─ libxml2 >=2.15.3,<2.16.0a0 *, which conflicts with any installable versions previously reported.
 c_compiler_version:   # [osx]
   - "22"              # [osx]
 cxx_compiler_version: # [osx]
